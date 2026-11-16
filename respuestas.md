@@ -23,3 +23,22 @@ de las carpetas del proyecto.
 Es mejor así porque esos detalles solo le sirven al programador para arreglar
 el fallo; al cliente no le aportan nada y a un atacante le darían pistas
 sobre cómo está montada la API.
+
+//EJERCICIO 2//
+Inyección SQL
+
+Con la versión mala salen **las 7 clases**; con la versión buena (`$1`) no
+sale **ninguna**.
+
+En la versión mala, el texto del cliente se pega dentro del SQL y la
+consulta le llega así a PostgreSQL:
+
+    ... WHERE c.activity ILIKE '%zzz' OR 1=1 --%' ORDER BY c.starts_at
+
+La comilla cierra el texto antes de tiempo, `OR 1=1` añade una condición que
+siempre es verdadera, y `--` convierte el resto en un comentario. Por eso
+salen todas las clases: el cliente ha cambiado la consulta.
+
+Con `$1`, la consulta y el valor llegan por separado, y PostgreSQL trata el
+valor siempre como un dato, nunca como SQL. Así se busca literalmente el
+texto `zzz' OR 1=1 --`, que no está en ninguna actividad.
