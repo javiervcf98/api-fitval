@@ -42,3 +42,22 @@ salen todas las clases: el cliente ha cambiado la consulta.
 Con `$1`, la consulta y el valor llegan por separado, y PostgreSQL trata el
 valor siempre como un dato, nunca como SQL. Así se busca literalmente el
 texto `zzz' OR 1=1 --`, que no está en ninguna actividad.
+
+//EJERCICIO 3//
+¿Para qué comprobamos en la API que el monitor existe?
+
+PostgreSQL ya impediría guardar una clase con un monitor que no existe, gracias
+a la clave ajena. Pero lo haría lanzando un error de clave ajena, que NestJS no
+conoce, y el cliente recibiría un 500 «Internal server error», como si fuera un
+fallo nuestro y sin saber qué ha hecho mal. Comprobándolo antes, la API responde
+un 400 con un mensaje claro: «No existe ningún monitor con ese trainerId». La
+clave ajena sigue siendo útil como última protección de los datos.
+
+//PREGUNTA 4//
+¿Por qué borrar una clase con reservas es 409 y no 400?
+
+Porque la petición está bien hecha: el id es correcto y la clase existe. El
+problema no es lo que envía el cliente, sino el estado actual de la clase, que
+tiene reservas. Si no las tuviera, la misma petición funcionaría. El 400 es
+para peticiones mal hechas que el cliente debe corregir; el 409, para peticiones
+correctas que chocan con lo que hay en la base de datos.
