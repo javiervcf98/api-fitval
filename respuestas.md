@@ -61,3 +61,14 @@ problema no es lo que envía el cliente, sino el estado actual de la clase, que
 tiene reservas. Si no las tuviera, la misma petición funcionaría. El 400 es
 para peticiones mal hechas que el cliente debe corregir; el 409, para peticiones
 correctas que chocan con lo que hay en la base de datos.
+
+//PREGUNTA 5//
+¿Qué lleva dentro el token? ¿Por qué no metemos el rol?
+En jwt.io se ve que el token de Ana lleva `sub: 1` (su id), `iat` (cuándo se
+creó) y `exp` (cuándo caduca, una hora después). Se puede leer sin conocer el
+secreto: el token no está cifrado, solo firmado. Nadie puede cambiarlo sin que
+la firma deje de coincidir, pero cualquiera puede ver lo que lleva.
+
+No metemos el rol porque puede cambiar. Si fuera dentro del token, se quedaría
+con el valor del momento del login hasta que caducara. Así, en cambio, el guard
+lee el usuario de la base de datos en cada petición y el rol siempre está al día.
