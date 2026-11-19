@@ -72,3 +72,15 @@ la firma deje de coincidir, pero cualquiera puede ver lo que lleva.
 No metemos el rol porque puede cambiar. Si fuera dentro del token, se quedaría
 con el valor del momento del login hasta que caducara. Así, en cambio, el guard
 lee el usuario de la base de datos en cada petición y el rol siempre está al día.
+
+Pregunta 6. ¿Por qué funciona el token de recepción sin volver a hacer login?
+
+Porque el token solo lleva el id (`sub: 2`), no el rol. En cada petición, el
+`AuthGuard` busca el usuario en la base de datos con ese id, así que lee su rol
+actual. Al hacer el UPDATE a `staff`, la siguiente petición ya lo vio como
+personal del gimnasio, con el mismo token.
+
+Si el rol fuera dentro del token, la API se fiaría de lo que dice el token:
+recepción seguiría siendo `member` hasta que caducara el token o volviera a
+hacer login. Y al revés sería peor: si a alguien le quitáramos el rol `staff`,
+podría seguir creando y borrando clases con su token antiguo hasta que caducara.
