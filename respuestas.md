@@ -84,3 +84,17 @@ Si el rol fuera dentro del token, la API se fiaría de lo que dice el token:
 recepción seguiría siendo `member` hasta que caducara el token o volviera a
 hacer login. Y al revés sería peor: si a alguien le quitáramos el rol `staff`,
 podría seguir creando y borrando clases con su token antiguo hasta que caducara.
+
+Pregunta 7. ¿Por qué el test no necesita PostgreSQL?
+
+Porque `ClassesService` no se conecta a la base de datos él mismo: recibe un
+`Pool` y solo llama a su método `query`. En el test le damos un Pool falso,
+que responde lo que nosotros le decimos (`{ rows: [] }`), así que el servicio
+cree que la base de datos no ha encontrado el monitor. Por eso el test se puede
+ejecutar en cualquier sitio, como en el CI de GitHub, donde no hay PostgreSQL.
+
+Lo que no puede comprobar es que el SQL esté bien escrito ni que funcione de
+verdad: si la consulta tuviera un error de sintaxis, un nombre de columna mal o
+un JOIN equivocado, el Pool falso respondería igualmente lo que le hemos dicho y
+el test pasaría. Eso solo se descubre con la base de datos real, en los tests de
+integración.
