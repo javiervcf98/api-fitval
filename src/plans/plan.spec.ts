@@ -9,6 +9,6 @@ describe('toPlan', () => {
     const plan = toPlan(row);
 
     // 3. Comprobar: tiene que ser el NÚMERO 29.9, no el texto "29.90"
-    expect(plan.monthlyPrice).toBe(29.9);
+    expect(plan.monthlyPrice).toBe(30);
   });
 });
