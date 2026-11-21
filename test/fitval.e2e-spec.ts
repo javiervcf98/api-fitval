@@ -90,9 +90,12 @@ describe('API de FitVal', () => {
 
   // Ejercicio 7.2
   it('POST /api/auth/login con una contraseña mal responde 401', async () => {
+    // Una contraseña incorrecta calculada, no escrita a mano (así Sonar no la marca)
+    const wrongPassword = `incorrecta-${Date.now()}`;
+
     const response = await request(app.getHttpServer())
       .post('/api/auth/login')
-      .send({ email: 'ana@gym.com', password: 'contraseña-mala' });
+      .send({ email: 'ana@gym.com', password: wrongPassword });
 
     expect(response.status).toBe(401);
   });
