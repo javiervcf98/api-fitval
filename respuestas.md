@@ -98,3 +98,14 @@ verdad: si la consulta tuviera un error de sintaxis, un nombre de columna mal o
 un JOIN equivocado, el Pool falso respondería igualmente lo que le hemos dicho y
 el test pasaría. Eso solo se descubre con la base de datos real, en los tests de
 integración.
+
+Pregunta 8. ¿Por qué el correo lleva `Date.now()`?
+
+Porque los tests de integración usan la base de datos de verdad, y el usuario
+que registran se queda guardado. `Date.now()` da un número distinto en cada
+ejecución, así que cada vez se registra un correo nuevo y el registro siempre
+responde 201.
+
+Con un correo fijo, la primera ejecución funcionaría, pero la segunda el
+registro respondería 409 porque ese email ya existe: los tests dependerían de lo
+que dejó la ejecución anterior, y no serían repetibles.
