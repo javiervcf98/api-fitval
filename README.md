@@ -1,4 +1,11 @@
-<p align="center">
+# API de FitVal
+
+API REST del gimnasio FitVal con NestJS, PostgreSQL y JWT.
+
+- Documentación (local): http://localhost:3000/docs
+- Despliegue en Render: pendiente. La base de datos ya está creada en Supabase
+  y la API funciona contra ella desde local (Ejercicio 13.3).
+  <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
