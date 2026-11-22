@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthGuard } from './auth.guard';
 import type { AuthRequest } from './auth.guard';
@@ -15,6 +16,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
+@ApiTags('auth')
 @Controller('auth') // rutas /api/v1/auth
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -32,6 +34,7 @@ export class AuthController {
   }
 
   @Get('me') // GET /api/v1/auth/me → solo con token
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   me(@Req() request: AuthRequest) {
     return request.user; // lo dejó ahí el guard

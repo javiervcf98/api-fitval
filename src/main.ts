@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { configureApp } from './app.config';
@@ -18,6 +19,18 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' });
 
   configureApp(app); // helmet, prefijo /api, versiones, ValidationPipe y filtro de errores
+
+  // La documentación: http://localhost:3000/docs
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('API de FitVal')
+    .setDescription(
+      'La API del gimnasio FitVal: planes, clases, monitores y usuarios',
+    )
+    .setVersion('1.0')
+    .addBearerAuth() // el botón Authorize, para probar las rutas con token
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }
