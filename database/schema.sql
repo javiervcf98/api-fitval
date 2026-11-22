@@ -122,13 +122,10 @@ INSERT INTO bookings (member_id, class_id, booked_at) VALUES
 INSERT INTO specialties (name) VALUES
   ('Ciclo indoor'), ('Yoga'), ('Pilates'), ('Baile'), ('Fuerza');
 
-INSERT INTO trainer_specialties (trainer_id, specialty_id) VALUES
-  (1, 1), (1, 5), (2, 2), (2, 3), (3, 3), (3, 4), (4, 5);
-  -- Usuarios de la API
-CREATE TABLE users (
+CREATE TABLE trainers (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  email VARCHAR(255) NOT NULL UNIQUE,      -- no puede haber dos iguales
-  password_hash TEXT NOT NULL,             -- el hash, nunca la contraseña
-  role VARCHAR(20) NOT NULL DEFAULT 'member'
-    CHECK (role IN ('member', 'staff'))    -- solo estos dos roles
+  dni VARCHAR(9) UNIQUE NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  photo_url TEXT
 );

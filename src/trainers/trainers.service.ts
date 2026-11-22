@@ -25,7 +25,7 @@ export class TrainersService {
   // GET /api/v1/trainers/:id
   async findOne(id: number): Promise<Trainer> {
     const result = await this.pool.query<TrainerRow>(
-      `SELECT t.id, t.name, t.email, s.name AS specialty
+      `SELECT t.id, t.name, t.email, t.photo_url, s.name AS specialty
        FROM trainers t
        LEFT JOIN trainer_specialties ts ON ts.trainer_id = t.id
        LEFT JOIN specialties s ON s.id = ts.specialty_id
@@ -96,5 +96,14 @@ export class TrainersService {
 
     // 5. El monitor completo, con sus especialidades
     return this.findOne(trainerId);
+  }
+
+  // POST /api/v1/trainers/:id/photo: guarda la dirección de la foto
+  async setPhoto(id: number, photoUrl: string): Promise<Trainer> {
+    await this.pool.query('UPDATE trainers SET photo_url = $1 WHERE id = $2', [
+      photoUrl,
+      id,
+    ]);
+    return this.findOne(id);
   }
 }
