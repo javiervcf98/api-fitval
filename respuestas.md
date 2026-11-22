@@ -122,3 +122,18 @@ ASC o DESC porque lo decide un if.
 En la Parte 2 el problema era pegar el texto del cliente tal cual. Aquí no se
 puede usar `$1`, porque PostgreSQL solo acepta valores con `$`, no nombres de
 columna; por eso se usa una lista blanca de opciones permitidas.
+
+Pregunta 10. ¿Por qué el login tiene un límite más duro?
+
+Porque el login es donde alguien intentaría adivinar una contraseña probando
+miles de combinaciones seguidas (un ataque de fuerza bruta). Con 5 intentos por
+minuto, probar un millón de contraseñas llevaría más de 130 días. El resto de
+rutas tiene un límite más alto porque un usuario normal hace muchas peticiones
+legítimas.
+
+En Render, las peticiones llegan a la API a través de un proxy. Sin
+`app.set('trust proxy', 1)`, la API vería la IP del proxy en todas las
+peticiones, como si todos los usuarios fueran el mismo: entre todos gastarían
+las 20 peticiones por minuto y la API respondería 429 a todo el mundo. Con
+`trust proxy`, la API lee la IP real de cada usuario, que el proxy le pasa en
+una cabecera.

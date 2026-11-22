@@ -3,9 +3,14 @@ import {
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
+import helmet from 'helmet';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
 
 // La configuración de la API. La usan main.ts y los tests de integración
 export function configureApp(app: INestApplication) {
+  // Cabeceras de seguridad en todas las respuestas (y quita X-Powered-By)
+  app.use(helmet());
+
   // Todas las rutas empiezan por /api
   app.setGlobalPrefix('api');
 
@@ -23,4 +28,7 @@ export function configureApp(app: INestApplication) {
       transform: true, // aplica las transformaciones del DTO (como el trim)
     }),
   );
+
+  // Todos los errores con la misma forma: statusCode, message, path y timestamp
+  app.useGlobalFilters(new AllExceptionsFilter());
 }
