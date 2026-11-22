@@ -1,9 +1,19 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 
 // La configuración de la API. La usan main.ts y los tests de integración
 export function configureApp(app: INestApplication) {
   // Todas las rutas empiezan por /api
   app.setGlobalPrefix('api');
+
+  // Versiones en la URL: /api/v1/..., /api/v2/... (por defecto, la v1)
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
 
   // Comprueba los DTO en todas las rutas
   app.useGlobalPipes(

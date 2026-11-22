@@ -109,3 +109,16 @@ responde 201.
 Con un correo fijo, la primera ejecución funcionaría, pero la segunda el
 registro respondería 409 porque ese email ya existe: los tests dependerían de lo
 que dejó la ejecución anterior, y no serían repetibles.
+
+Pregunta 9. ¿Por qué no es peligroso el `${...}` del ORDER BY?
+
+Porque lo que se pega en el SQL nunca es el texto del cliente. Primero, el DTO
+solo admite tres valores en `sort` (`@IsIn`): con `?sort=id;DROP TABLE classes`
+la API responde 400 y la consulta ni se ejecuta. Segundo, aunque pasara, lo que
+va dentro del ORDER BY es el valor de la tabla `SORT_COLUMNS` (`c.starts_at`,
+`c.activity` o `c.spots`), escrito por nosotros. Y `direction` solo puede ser
+ASC o DESC porque lo decide un if.
+
+En la Parte 2 el problema era pegar el texto del cliente tal cual. Aquí no se
+puede usar `$1`, porque PostgreSQL solo acepta valores con `$`, no nombres de
+columna; por eso se usa una lista blanca de opciones permitidas.
