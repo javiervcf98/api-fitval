@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { configureApp } from './app.config';
 import { AppModule } from './app.module';
 
@@ -12,6 +13,9 @@ async function bootstrap() {
 
   // En Render, las peticiones llegan a través de un proxy: así se ve la IP real
   app.set('trust proxy', 1);
+
+  // Las fotos de uploads/ se ven en http://localhost:3000/uploads/...
+  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' });
 
   configureApp(app); // helmet, prefijo /api, versiones, ValidationPipe y filtro de errores
 
