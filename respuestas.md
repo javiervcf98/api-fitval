@@ -152,3 +152,16 @@ especialidad 99: el INSERT de Nuria llegó a ejecutarse y recibió el 5, y el
 ROLLBACK deshizo la fila, pero no devolvió el número. Los contadores de ids de
 PostgreSQL nunca vuelven atrás, para que dos transacciones a la vez no reciban
 el mismo id. Por eso quedan huecos (como el 5 y el 7).
+
+Pregunta 12. ¿Quién impide que otra-web.com lea los planes?
+
+El navegador. La API responde 200 igualmente y solo indica, en la cabecera
+`Access-Control-Allow-Origin`, qué web tiene permiso (`http://localhost:5173`).
+El navegador compara esa cabecera con la dirección de la web que hizo la
+petición: si coinciden, le entrega la respuesta al JavaScript de la web; si no
+(como con otra-web.com), la bloquea y en la consola sale «blocked by CORS policy».
+
+Postman y curl sí pueden leer la respuesta porque no son navegadores y no aplican
+esa comprobación. CORS protege al usuario de que una web cualquiera use su
+navegador para leer datos de otra API; no protege a la API de otros programas.
+Para eso están los tokens y los guards.

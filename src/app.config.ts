@@ -8,6 +8,12 @@ import { AllExceptionsFilter } from './common/all-exceptions.filter';
 
 // La configuración de la API. La usan main.ts y los tests de integración
 export function configureApp(app: INestApplication) {
+  // CORS: solo esta web puede usar la API desde el navegador.
+  // En Render, la dirección sale de la variable CORS_ORIGIN. En tu ordenador, la de Vite.
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+  });
+
   // Cabeceras de seguridad en todas las respuestas (y quita X-Powered-By).
   // cross-origin: deja que una web en otra dirección muestre las fotos
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
