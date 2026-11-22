@@ -165,3 +165,36 @@ Postman y curl sí pueden leer la respuesta porque no son navegadores y no aplic
 esa comprobación. CORS protege al usuario de que una web cualquiera use su
 navegador para leer datos de otra API; no protege a la API de otros programas.
 Para eso están los tokens y los guards.
+
+Pregunta 13. ¿Qué dice /api/v1/health con Supabase?
+
+Dice `"database": "postgres"` en lugar de `"fitval"`. La ruta hace
+`SELECT current_database()`, que devuelve el nombre de la base de datos a la
+que está conectada la API. En Docker se llamaba `fitval` (por el
+`POSTGRES_DB` del `compose.yaml`), y en Supabase la base de datos de cada
+proyecto se llama siempre `postgres` (es lo que va al final de la dirección).
+
+No he tenido que cambiar nada del código: solo la variable `DATABASE_URL` del
+`.env`. Como la conexión sale de una variable de entorno, el mismo código
+funciona contra Docker o contra Supabase.
+
+Pregunta 14. ¿Qué pasa con la foto al volver a desplegar?
+
+(Sin comprobar: no llegué a desplegar en Render.) La foto desaparecería: Render
+crea un servidor nuevo en cada despliegue y el disco no se conserva, así que la
+carpeta `uploads/` se pierde. El monitor seguiría teniendo su `photoUrl` en la
+base de datos (que está en Supabase), pero apuntaría a un fichero que ya no
+existe y daría 404. Las fotos habría que guardarlas en un almacenamiento externo,
+como Supabase Storage o un servicio tipo S3.
+
+## Pregunta 15. Direct connection y cambio de secreto
+
+(Sin comprobar: no llegué a desplegar en Render.) La Direct connection de
+Supabase usa IPv6, y Render no puede salir por IPv6, por eso daría ENETUNREACH.
+El Session pooler tiene una dirección IPv4 (lo avisa la propia ventana de
+Supabase: «Session pooler connections are IPv4 proxied»).
+
+Al cambiar el JWT_SECRET, el token de Ana daría 401: su firma se hizo con el
+secreto antiguo y ya no coincide. Se cambia a propósito cuando el secreto se ha
+filtrado: así todos los tokens robados dejan de valer y cada usuario tiene que
+volver a hacer login.
