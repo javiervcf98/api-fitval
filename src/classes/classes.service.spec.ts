@@ -90,4 +90,22 @@ describe('ClassesService', () => {
       [1],
     );
   });
+
+  // Ejercicio 8.3
+  it('findPage devuelve el total y calcula totalPages', async () => {
+    fakePool.query
+      .mockResolvedValueOnce({ rows: [spinningRow] }) // 1.ª: las clases de la página
+      .mockResolvedValueOnce({ rows: [{ total: 7 }] }); // 2.ª: el COUNT
+
+    const page = await service.findPage({
+      page: 1,
+      limit: 3,
+      sort: 'startsAt',
+      order: 'asc',
+    });
+
+    expect(page.data).toHaveLength(1);
+    expect(page.total).toBe(7);
+    expect(page.totalPages).toBe(3); // 7 clases de 3 en 3 → 3 páginas
+  });
 });

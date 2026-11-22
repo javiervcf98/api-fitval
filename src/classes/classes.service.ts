@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { Pool } from 'pg';
 import { CreateClassDto } from './dto/create-class.dto';
-import { GymClass, GymClassRow, toGymClass } from './gym-class';
+import { ListClassesQueryDto } from './dto/list-classes-query.dto';
+import { GymClass, GymClassPage, GymClassRow, toGymClass } from './gym-class';
 
 // La parte común de todas las consultas de clases: con el nombre del monitor
 const SELECT_CLASSES = `
@@ -14,11 +15,18 @@ const SELECT_CLASSES = `
   FROM classes c
   JOIN trainers t ON t.id = c.trainer_id`;
 
+// El campo de la API → la columna de la tabla
+const SORT_COLUMNS: Record<ListClassesQueryDto['sort'], string> = {
+  startsAt: 'c.starts_at',
+  activity: 'c.activity',
+  spots: 'c.spots',
+};
+
 @Injectable()
 export class ClassesService {
   constructor(private readonly pool: Pool) {}
 
-  // GET /api/classes y GET /api/classes?activity=yoga
+  // GET /api/v1/classes y GET /api/v1/classes?activity=yoga
   async findAll(activity?: string): Promise<GymClass[]> {
     if (activity) {
       const result = await this.pool.query<GymClassRow>(
@@ -34,7 +42,42 @@ export class ClassesService {
     return result.rows.map(toGymClass);
   }
 
-  // GET /api/classes/:id
+  // GET /api/v2/classes: una página de clases
+  async findPage(query: ListClassesQueryDto): Promise<GymClassPage> {
+    const { page, limit, sort, order, activity } = query;
+
+    // El filtro es opcional: si llega, añadimos el WHERE y su $1
+    const where = activity ? `WHERE c.activity ILIKE '%' || $1 || '%'` : '';
+    const params: (string | number)[] = activity ? [activity] : [];
+
+    const direction = order === 'desc' ? 'DESC' : 'ASC';
+    const offset = (page - 1) * limit; // cuántas clases saltarse
+
+    // 1. Las clases de esta página
+    const result = await this.pool.query<GymClassRow>(
+      `${SELECT_CLASSES} ${where}
+       ORDER BY ${SORT_COLUMNS[sort]} ${direction}, c.id
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit, offset],
+    );
+
+    // 2. Cuántas hay en total (con el mismo filtro)
+    const count = await this.pool.query<{ total: number }>(
+      `SELECT COUNT(*)::int AS total FROM classes c ${where}`,
+      params,
+    );
+    const total = count.rows[0].total;
+
+    return {
+      data: result.rows.map(toGymClass),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  // GET /api/v1/classes/:id
   async findOne(id: number): Promise<GymClass> {
     const result = await this.pool.query<GymClassRow>(
       `${SELECT_CLASSES} WHERE c.id = $1`,
@@ -48,7 +91,7 @@ export class ClassesService {
     return toGymClass(result.rows[0]);
   }
 
-  // POST /api/classes
+  // POST /api/v1/classes
   async create(dto: CreateClassDto): Promise<GymClass> {
     // 1. ¿Existe el monitor?
     const trainer = await this.pool.query(
@@ -73,7 +116,7 @@ export class ClassesService {
     return this.findOne(result.rows[0].id);
   }
 
-  // DELETE /api/classes/:id
+  // DELETE /api/v1/classes/:id
   async remove(id: number): Promise<GymClass> {
     // 1. ¿Existe? findOne ya lanza el 404 si no
     const gymClass = await this.findOne(id);
