@@ -7,6 +7,7 @@ import { ClassesModule } from './classes/classes.module';
 import { DatabaseModule } from './database/database.module';
 import { PlansModule } from './plans/plans.module';
 import { UsersModule } from './users/users.module';
+import { TrainersModule } from './trainers/trainers.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UsersModule } from './users/users.module';
     ClassesModule,
     UsersModule,
     AuthModule,
+    TrainersModule,
   ],
   controllers: [AppController],
   providers: [

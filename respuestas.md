@@ -137,3 +137,18 @@ peticiones, como si todos los usuarios fueran el mismo: entre todos gastarían
 las 20 peticiones por minuto y la API respondería 429 a todo el mundo. Con
 `trust proxy`, la API lee la IP real de cada usuario, que el proxy le pasa en
 una cabecera.
+
+Pregunta 11. ¿Qué ha pasado sin la transacción?
+
+La API respondió 400 («No existe la especialidad 99»), pero Óscar se guardó
+igualmente, con una sola especialidad (Fuerza). Sin BEGIN, cada INSERT se
+guardaba en el momento: primero Óscar, después su especialidad 5. Al fallar la
+99 no había ROLLBACK, así que nadie deshizo lo anterior. El cliente cree que no
+se ha guardado nada, pero en la base de datos hay un monitor a medias. Con la
+transacción, el ROLLBACK deshace todo y no queda nada.
+
+Nuria tiene el id 6 y no el 5 porque el 5 se gastó en el intento con la
+especialidad 99: el INSERT de Nuria llegó a ejecutarse y recibió el 5, y el
+ROLLBACK deshizo la fila, pero no devolvió el número. Los contadores de ids de
+PostgreSQL nunca vuelven atrás, para que dos transacciones a la vez no reciban
+el mismo id. Por eso quedan huecos (como el 5 y el 7).
